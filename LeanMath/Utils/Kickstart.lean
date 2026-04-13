@@ -3,9 +3,8 @@ import Mathlib.Tactic
 namespace Utils.Kickstart
 set_option linter.style.multiGoal false
 
--- Define some variables and hypotheses for the later use in the examples.
-variable (x : ℕ) (hx : x = 2)
-variable (y : ℕ) (hy : y = 3)
+private def x : ℤ := 2
+private def y : ℤ := 3
 
 /-- Create a challange to find **one** solution to `P`, represented as a set. -/
 abbrev find_one {α} (P : Set α) := Σ' e, e ∈ P
@@ -20,13 +19,13 @@ macro "answer!" t:term : tactic => `(tactic| (swap; exact $t))
 -- Showcases:
 private def easy : find_one { _? | _? = x + y } := by
   start!
-  simp [*]
+  simp [x, y]
   answer! 5
   rfl
 
 example : find_all { _? | _? = x + y } := by
   start!
-  simp [*]
+  simp [x, y]
   answer! {5}
   rfl
 
@@ -41,35 +40,54 @@ macro "reuse!" val:term "from" t:term "as" h_name:ident : tactic =>
   ))
 
 example : 5 = x + y := by
-  reuse! 5 from easy x hx y hy as h
-  clear hx hy
-  simp at h; trivial
+  reuse! 5 from easy as h
+  simp at h
+  exact h
 
 /-- Create a challenge to choose **one** option that satisfies `P`, represented as a set. -/
 abbrev choose_one {α β} (P : Set α) (choices : β → α) := Σ' c, choices c ∈ P
 /-- Create a challenge to choose **all** options that satisfy `P`, represented as a set. -/
 abbrev choose_all {α β} (P : Set α) (choices : β → α) := Σ' S, S = {c | choices c ∈ P}
+/-- Create a challenge to choose the option that *minimizes* the target function `F`. -/
+abbrev choose_least {α γ β} [LinearOrder γ] (F : α → γ) (choices : β → α) :=
+  Σ' c, ∀ c', F (choices c) ≤ F (choices c')
 
-private inductive Choice | A | B | C | D
+/-- The default 4-choice setting for GaoKao math problems. Override this if needed. -/
+inductive Choice | A | B | C | D
 
+-- Question: choose the correct value of `x + y`.
 example : choose_one { _? | _? = x + y } (match · with
   | Choice.A => 1
   | Choice.B => 3
   | Choice.C => 5
   | Choice.D => 7) := by
   start!
-  simp [*]
+  simp [x, y]
   answer! Choice.C
   rfl
 
+-- Question: choose all following propositions that are `true`.
 example : choose_all { _? | _? = True } (match · with
   | Choice.A => x > y
   | Choice.B => x < y
   | Choice.C => x ≥ y
   | Choice.D => x ≤ y) := by
   start!
-  simp [*]
+  simp [x, y]
   answer! {Choice.B, Choice.D}
   grind
+
+-- Question: choose the option that is closest to 42.
+example : choose_least (|· - 42|) (match · with
+  | Choice.A => x + y
+  | Choice.B => x - y
+  | Choice.C => x * y
+  | Choice.D => x / y) := by
+  start!
+  simp [x, y]
+  answer! Choice.C
+  grind
+
+-- **TODO**: Add support for generic multiple-choice reasoning, e.g. match-pushing
 
 end Utils.Kickstart
