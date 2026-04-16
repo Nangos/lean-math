@@ -84,8 +84,8 @@ def problem : choose_one { _? | ∀ f, condition f → f (-3/4) = _? } (match ·
   rintro f hEven hPeriodOf2 hPartialDef
   norm_num  -- imporantly reduces (-3)/4 to -(3/4)!!
   rw [hEven]  -- f (-3/4) = f (3/4)
-  rw [← hPeriodOf2]; norm_num  -- f (3/4) = f (11/4), got in the range!!
-  rw [hPartialDef _ (by linarith) (by linarith)]; norm_num  -- f (11/4) = 5 - 2 * (11/4)
+  rw [← hPeriodOf2]  -- f (3/4) = f (3/4 + 2), got in the [2, 3] range!!
+  rw [hPartialDef _ (by linarith) (by linarith)]; norm_num  -- plug in; simplify!
   answer! Choice.A
   rfl
 end P05

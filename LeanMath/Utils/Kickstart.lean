@@ -77,6 +77,12 @@ example : choose_all { _? | _? = True } (match · with
   answer! {Choice.B, Choice.D}
   grind
 
+/-- Given a choice list, push function `F` into each of its match arms. -/
+theorem Choice.push {α β} (F : α → β) (c : Choice) (vA vB vC vD : α) :
+    F (match c with | .A => vA | .B => vB | .C => vC | .D => vD)
+    = (match c with | .A => F vA | .B => F vB | .C => F vC | .D => F vD) := by
+  grind
+
 -- Question: choose the option that is closest to 42.
 example : choose_least (|· - 42|) (match · with
   | Choice.A => x + y
@@ -85,9 +91,8 @@ example : choose_least (|· - 42|) (match · with
   | Choice.D => x / y) := by
   start!
   simp [x, y]
+  simp [Choice.push (|· - (42 : ℤ)|)]
   answer! Choice.C
   grind
-
--- **TODO**: Add support for generic multiple-choice reasoning, e.g. match-pushing
 
 end Utils.Kickstart
