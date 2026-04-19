@@ -1,6 +1,9 @@
 import Mathlib.Tactic
 
 namespace Utils.Kickstart
+
+set_option linter.style.setOption false
+set_option linter.flexible false
 set_option linter.style.multiGoal false
 
 private def x : ℤ := 2
@@ -11,22 +14,27 @@ abbrev find_one {α} (P : Set α) := Σ' e, e ∈ P
 /-- Create a challange to find **all** solutions to `P`, represented as a set. -/
 abbrev find_all {α} (P : Set α) := Σ' S, S = P
 
-/-- Use the `start!` macro to kickstart the challenge solving process. -/
-macro "start!" : tactic => `(tactic| (refine ⟨?ans, ?proof⟩; swap))
 /-- Use the `answer! ...` macro to explicitly provide an answer once you're ready. -/
-macro "answer!" t:term : tactic => `(tactic| (swap; exact $t))
+macro "answer!" t:term : tactic => `(tactic| refine ⟨$t, ?proof⟩)
+
+/-- Use the `answer_later!` macro to "pretend" there is an answer, which can enable further
+  simplifications. This macro should NOT be used too early. -/
+macro "answer_later!" : tactic => `(tactic| (refine ⟨?ans, ?proof⟩; swap))
+
+/-- Used the `answer_now! ...` macro to explicitly provide an answer.
+  Should ONLY be used after `answer_later!`. -/
+macro "answer_now!" t:term : tactic => `(tactic| (swap; exact $t))
 
 -- Showcases:
 private def easy : find_one { _? | _? = x + y } := by
-  start!
   simp [x, y]
   answer! 5
   rfl
 
 example : find_all { _? | _? = x + y } := by
-  start!
+  answer_later!
   simp [x, y]
-  answer! {5}
+  answer_now! {5}
   rfl
 
 /-- Use the `reuse! ... from ... as ...` macro to reuse a previously solved challenge. -/
@@ -61,7 +69,6 @@ example : choose_one { _? | _? = x + y } (match · with
   | Choice.B => 3
   | Choice.C => 5
   | Choice.D => 7) := by
-  start!
   simp [x, y]
   answer! Choice.C
   rfl
@@ -72,7 +79,6 @@ example : choose_all { _? | _? = True } (match · with
   | Choice.B => x < y
   | Choice.C => x ≥ y
   | Choice.D => x ≤ y) := by
-  start!
   simp [x, y]
   answer! {Choice.B, Choice.D}
   grind
@@ -81,7 +87,7 @@ example : choose_all { _? | _? = True } (match · with
 theorem Choice.push {α β} (F : α → β) (c : Choice) (vA vB vC vD : α) :
     F (match c with | .A => vA | .B => vB | .C => vC | .D => vD)
     = (match c with | .A => F vA | .B => F vB | .C => F vC | .D => F vD) := by
-  grind
+  cases c <;> rfl
 
 -- Question: choose the option that is closest to 42.
 example : choose_least (|· - 42|) (match · with
@@ -89,10 +95,10 @@ example : choose_least (|· - 42|) (match · with
   | Choice.B => x - y
   | Choice.C => x * y
   | Choice.D => x / y) := by
-  start!
   simp [x, y]
+  answer_later!
   simp [Choice.push (|· - (42 : ℤ)|)]
-  answer! Choice.C
+  answer_now! Choice.C
   grind
 
 end Utils.Kickstart

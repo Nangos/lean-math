@@ -11,9 +11,9 @@ Standard Lean formalization usually requires providing the answer upfront in the
 Instead of a standard theorem, we represent problems as **Sigma types**—mathematical "containers" that require you to provide both a concrete value and a proof that it satisfies the given conditions.
 
 We utilize metavariables and macros to defer the solution:
-1. **`start!`**: Splits the goal into a result metavariable and a proof requirement.
+1. **`answer_later!`**: Splits the goal into a result metavariable and a proof requirement.
 2. **Flexible Timing**: Use tactics (`simp`, `linarith`, `grind`) to reduce the problem. You can provide the answer at the beginning, middle, or the very end of the script.
-3. **`answer! <val>`**: Fills the metavariable with your calculated result once the proof is simplified.
+3. **`answer_now! <val>`**: Fills the metavariable with your calculated result once the proof is simplified.
 
 **Note:** I am a Lean beginner, and this is a "learn-by-doing" project. Feedback and suggestions are highly welcome!
 
