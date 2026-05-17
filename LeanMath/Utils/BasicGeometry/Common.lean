@@ -17,9 +17,9 @@ class ToPointSet (n : ℕ) (S : Type*) where
   /-- Converts the object into a standard set of points. -/
   toPointSet : S → Set (Point n)
 
-/-- Coordinate system, essentially a bijection between abstract points `Point n` and real
+/-- Coordinate system, essentially an affine bijection between abstract points `Point n` and real
 coordinate tuples `Fin n → ℝ`. -/
-abbrev CoordSys (n : ℕ) := Point n ≃ (Fin n → ℝ)
+abbrev CoordSys (n : ℕ) := Point n ≃ᵃ[ℝ] (Fin n → ℝ)
 
 /-- A point localized to a specific coordinate system `Φ`, holding the underlying
 coordinate-free point data. -/
@@ -34,19 +34,22 @@ instance {n : ℕ} {Φ : CoordSys n} : CoeOut (PointView Φ) (Point n) where
 
 /-- Gets the specific coordinate array of the point evaluate under the specific coordinate
 system `Φ`. -/
-def PointView.coord {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) : (Fin n → ℝ) :=
+noncomputable def PointView.coord {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) : (Fin n → ℝ) :=
   Φ ↑p
 
 /-- Gets the first coordinate (x) of the point under the current coordinate system. -/
-def PointView.x {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) (h : 1 ≤ n := by omega) : ℝ :=
+noncomputable def PointView.x {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) (h : 1 ≤ n := by omega)
+    : ℝ :=
   p.coord ⟨0, by omega⟩
 
 /-- Gets the second coordinate (y) of the point under the current coordinate system. -/
-def PointView.y {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) (h : 2 ≤ n := by omega) : ℝ :=
+noncomputable def PointView.y {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) (h : 2 ≤ n := by omega)
+    : ℝ :=
   p.coord ⟨1, by omega⟩
 
 /-- Gets the third coordinate (z) of the point under the current coordinate system. -/
-def PointView.z {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) (h : 3 ≤ n := by omega) : ℝ :=
+noncomputable def PointView.z {n : ℕ} {Φ : CoordSys n} (p : PointView Φ) (h : 3 ≤ n := by omega)
+    : ℝ :=
   p.coord ⟨2, by omega⟩
 
 /-- A set of points localized to a specific coordinate system `Φ`. -/
